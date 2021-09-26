@@ -1,8 +1,5 @@
 package com.itbooth.mobility.ludodice;
 
-import androidx.appcompat.app.AppCompatActivity;
-import androidx.core.content.FileProvider;
-
 import android.content.Intent;
 import android.graphics.Bitmap;
 import android.net.Uri;
@@ -14,6 +11,9 @@ import android.view.WindowManager;
 import android.widget.ImageButton;
 import android.widget.Toast;
 import android.widget.VideoView;
+
+import androidx.appcompat.app.AppCompatActivity;
+import androidx.core.content.FileProvider;
 
 import java.io.File;
 import java.io.FileOutputStream;
@@ -30,6 +30,7 @@ public class VideoActivity extends AppCompatActivity {
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
         setContentView(R.layout.activity_video);
+
         getWindow().addFlags(WindowManager.LayoutParams.FLAG_FULLSCREEN);
         videoView = (VideoView)findViewById(R.id.dice_vv);
         refreshIV = (ImageButton)findViewById(R.id.refreshIV);
