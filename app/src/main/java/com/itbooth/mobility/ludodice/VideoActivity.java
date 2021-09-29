@@ -2,6 +2,7 @@ package com.itbooth.mobility.ludodice;
 
 import android.content.Intent;
 import android.graphics.Bitmap;
+import android.graphics.Color;
 import android.net.Uri;
 import android.os.Bundle;
 import android.os.Environment;
@@ -20,8 +21,12 @@ import java.io.FileOutputStream;
 import java.text.SimpleDateFormat;
 import java.util.Date;
 
-public class VideoActivity extends AppCompatActivity {
+import nl.dionsegijn.konfetti.KonfettiView;
+import nl.dionsegijn.konfetti.models.Shape;
+import nl.dionsegijn.konfetti.models.Size;
 
+public class VideoActivity extends AppCompatActivity {
+    //KonfettiView viewKonfetti;
     VideoView videoView;
     Uri uri;
     ImageButton refreshIV, closeIV, shareIV;
@@ -36,6 +41,7 @@ public class VideoActivity extends AppCompatActivity {
         refreshIV = (ImageButton)findViewById(R.id.refreshIV);
         shareIV = (ImageButton)findViewById(R.id.shareIV);
         closeIV = (ImageButton) findViewById(R.id.closeIV);
+        //viewKonfetti = (KonfettiView) findViewById(R.id.viewKonfetti);
         refreshDice();
 
         refreshIV.setOnClickListener(new View.OnClickListener() {
@@ -87,6 +93,7 @@ public class VideoActivity extends AppCompatActivity {
                 break;
             case 6:
                 uri = Uri.parse("android.resource://"+getPackageName()+"/"+R.raw.dice_6);
+                //playConfetti();
                 break;
             default:
                 uri = Uri.parse("android.resource://"+getPackageName()+"/"+R.raw.dice_1);
@@ -102,7 +109,7 @@ public class VideoActivity extends AppCompatActivity {
         params.leftMargin = 0;
         videoView.setLayoutParams(params);
         */
-        uri = Uri.parse("android.resource://"+getPackageName()+"/"+R.raw.dice_1);
+        uri = Uri.parse("android.resource://"+getPackageName()+"/"+R.raw.dice_6);
         videoView.setVideoURI(uri);
         videoView.start();
 
@@ -158,4 +165,5 @@ public class VideoActivity extends AppCompatActivity {
         intent.addFlags(Intent.FLAG_GRANT_READ_URI_PERMISSION);
         startActivity(intent);
     }
+
 }
