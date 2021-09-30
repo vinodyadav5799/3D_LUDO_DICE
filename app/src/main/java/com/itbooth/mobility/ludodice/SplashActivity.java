@@ -7,6 +7,7 @@ import android.graphics.Color;
 import android.os.Bundle;
 import android.os.Handler;
 import android.util.DisplayMetrics;
+import android.view.WindowManager;
 
 import nl.dionsegijn.konfetti.KonfettiView;
 import nl.dionsegijn.konfetti.models.Shape;
@@ -19,21 +20,18 @@ public class SplashActivity extends AppCompatActivity {
         super.onCreate(savedInstanceState);
         setContentView(R.layout.activity_splash);
 
+        getWindow().addFlags(WindowManager.LayoutParams.FLAG_FULLSCREEN);
         viewKonfetti = findViewById(R.id.viewConfettiWrapper);
-        /*
         new Handler().postDelayed(new Runnable() {
             @Override
             public void run() {
-                //This method will be executed once the timer is over
-                // Start your app main activity
                 Intent i = new Intent(SplashActivity.this, VideoActivity.class);
                 startActivity(i);
-                // close this activity
                 finish();
             }
-        }, 3000);
-        */
-        startConfetti();
+        }, 5000);
+
+        //startConfetti();
     }
 
     public void startConfetti(){

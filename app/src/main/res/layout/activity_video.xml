@@ -1,59 +1,126 @@
 <?xml version="1.0" encoding="utf-8"?>
-<LinearLayout xmlns:android="http://schemas.android.com/apk/res/android"
+<FrameLayout xmlns:android="http://schemas.android.com/apk/res/android"
+    xmlns:app="http://schemas.android.com/apk/res-auto"
+    xmlns:tools="http://schemas.android.com/tools"
     android:layout_width="match_parent"
     android:layout_height="match_parent"
-    android:padding="10dp"
-    android:orientation="vertical"
-    android:background="@color/black">
-
-    <nl.dionsegijn.konfetti.KonfettiView
-        android:id="@+id/viewKonfetti"
-        android:layout_width="wrap_content"
-        android:layout_height="wrap_content">
-    </nl.dionsegijn.konfetti.KonfettiView>
+    android:background="@color/black"
+    tools:context=".SplashActivity">
 
     <RelativeLayout
-        android:id="@+id/topWrapper"
-        android:layout_width="wrap_content"
+        android:layout_width="match_parent"
         android:layout_height="wrap_content"
-        android:layout_alignParentTop="true">
-        <ImageButton
-            android:id="@+id/closeIV"
-            android:layout_width="45dp"
-            android:layout_height="45dp"
-            android:layout_alignParentLeft="true"
-            android:layout_centerHorizontal="true"
-            android:background="@drawable/ic_close"/>
+        android:padding="10dp"
+        android:orientation="vertical"
+        android:layout_gravity="center"
+        android:background="@color/black">
 
-        <ImageButton
-            android:id="@+id/shareIV"
-            android:layout_width="45dp"
-            android:layout_height="45dp"
-            android:layout_alignParentRight="true"
-            android:layout_centerHorizontal="true"
-            android:background="@drawable/ic_share"/>
+        <LinearLayout
+            android:id="@+id/countWrapper"
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:orientation="horizontal"
+            android:paddingBottom="30dp"
+            android:layout_centerVertical="true"
+            android:layout_alignParentTop="true"
+            android:gravity="center">
+            <TextView
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:text="Dice rotation history - "
+                android:textSize="20dp"
+                android:gravity="center"
+                android:textColor="@color/yellow"/>
 
-        <ImageButton
-            android:id="@+id/refreshIV"
-            android:layout_width="45dp"
-            android:layout_height="45dp"
-            android:layout_alignParentRight="true"
-            android:layout_centerHorizontal="true"
-            android:background="@drawable/ic_refresh"
-            android:visibility="gone"/>
-    </RelativeLayout>
+            <TextView
+                android:id="@+id/countTV"
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:text=""
+                android:textSize="25dp"
+                android:gravity="center"
+                android:textStyle="bold"
+                android:textColor="@color/organge"/>
+        </LinearLayout>
 
+        <LinearLayout
+            android:id="@+id/scoreWrapper"
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:orientation="horizontal"
+            android:padding="5dp"
+            android:layout_centerVertical="true"
+            android:layout_below="@+id/countWrapper"
+            android:background="@drawable/score_board_bg"
+            android:gravity="center">
+            <TextView
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:text="Previous dice point: "
+                android:textSize="25dp"
+                android:gravity="center"
+                android:textColor="@color/yellow"/>
 
+            <TextView
+                android:id="@+id/lastScoreTV"
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:text=""
+                android:textSize="30dp"
+                android:gravity="center"
+                android:textStyle="bold"
+                android:textColor="@color/yellow"/>
+        </LinearLayout>
 
-    <LinearLayout
-        android:id="@+id/video_wrapper"
-        android:layout_height="wrap_content"
-        android:layout_width="wrap_content">
-        <VideoView
-            android:id="@+id/dice_vv"
+        <LinearLayout
+            android:id="@+id/topWrapper"
             android:layout_width="wrap_content"
-            android:layout_height="wrap_content"/>
-    </LinearLayout>
+            android:layout_height="wrap_content"
+            android:layout_below="@+id/scoreWrapper"
+            android:paddingTop="30dp"
+            android:paddingBottom="20dp"
+            android:orientation="horizontal">
+            <ImageButton
+                android:id="@+id/closeIV"
+                android:layout_width="45dp"
+                android:layout_height="45dp"
+                android:visibility="gone"
+                android:background="@drawable/ic_close"/>
 
+            <ImageButton
+                android:id="@+id/shareIV"
+                android:layout_width="45dp"
+                android:layout_height="45dp"
+                android:layout_marginRight="15dp"
+                android:layout_marginEnd="15dp"
+                android:background="@drawable/ic_share"/>
 
-</LinearLayout>
+            <ImageButton
+                android:id="@+id/refreshIV"
+                android:layout_width="45dp"
+                android:layout_height="45dp"
+                android:layout_marginRight="15dp"
+                android:layout_marginEnd="15dp"
+                android:background="@drawable/ic_refresh"/>
+
+            <ImageButton
+                android:id="@+id/settingIV"
+                android:layout_width="45dp"
+                android:layout_height="45dp"
+                android:background="@drawable/ic_settings"/>
+        </LinearLayout>
+
+        <FrameLayout
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:layout_below="@+id/topWrapper">
+
+            <VideoView
+                android:id="@+id/dice_vv"
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"/>
+
+        </FrameLayout>
+
+    </RelativeLayout>
+</FrameLayout>

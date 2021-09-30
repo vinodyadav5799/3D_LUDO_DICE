@@ -7,9 +7,16 @@ import android.net.Uri;
 import android.os.Bundle;
 import android.os.Environment;
 import android.os.Handler;
+import android.util.DisplayMetrics;
+import android.view.Gravity;
+import android.view.LayoutInflater;
 import android.view.View;
+import android.view.ViewGroup;
 import android.view.WindowManager;
 import android.widget.ImageButton;
+import android.widget.ImageView;
+import android.widget.LinearLayout;
+import android.widget.TextView;
 import android.widget.Toast;
 import android.widget.VideoView;
 
@@ -19,6 +26,7 @@ import androidx.core.content.FileProvider;
 import java.io.File;
 import java.io.FileOutputStream;
 import java.text.SimpleDateFormat;
+import java.util.ArrayList;
 import java.util.Date;
 
 import nl.dionsegijn.konfetti.KonfettiView;
@@ -26,10 +34,12 @@ import nl.dionsegijn.konfetti.models.Shape;
 import nl.dionsegijn.konfetti.models.Size;
 
 public class VideoActivity extends AppCompatActivity {
-    //KonfettiView viewKonfetti;
     VideoView videoView;
     Uri uri;
     ImageButton refreshIV, closeIV, shareIV;
+    TextView lastScoreTV, countTV;
+    LinearLayout scoreWrapper;
+    ArrayList<String> scoreList = new ArrayList<>();
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
@@ -41,8 +51,10 @@ public class VideoActivity extends AppCompatActivity {
         refreshIV = (ImageButton)findViewById(R.id.refreshIV);
         shareIV = (ImageButton)findViewById(R.id.shareIV);
         closeIV = (ImageButton) findViewById(R.id.closeIV);
-        //viewKonfetti = (KonfettiView) findViewById(R.id.viewKonfetti);
-        refreshDice();
+        lastScoreTV = findViewById(R.id.lastScoreTV);
+        countTV = findViewById(R.id.countTV);
+        scoreWrapper = findViewById(R.id.scoreWrapper);
+        scoreWrapper.setVisibility(View.INVISIBLE);
 
         refreshIV.setOnClickListener(new View.OnClickListener() {
             @Override
@@ -71,14 +83,24 @@ public class VideoActivity extends AppCompatActivity {
                 takeScreenshot();
             }
         });
+
+        videoView.setVideoURI(Uri.parse("android.resource://"+getPackageName()+"/"+R.raw.dice_1));
+        videoView.seekTo( 1 ); // thumbnail
+        updateDiceCountHistory();
     }
 
-    public void refreshDice(){
+    public void updateDiceCountHistory() {
+        String count = Utils.getDiceCount(this);
+        if(count.equals("")){
+            countTV.setText("0");
+        } else {
+            countTV.setText(count);
+        }
+    }
+
+    public void refreshDice() {
         int dot = Utils.generateRandomNumber();
         switch (dot){
-            case 1:
-                uri = Uri.parse("android.resource://"+getPackageName()+"/"+R.raw.dice_1);
-                break;
             case 2:
                 uri = Uri.parse("android.resource://"+getPackageName()+"/"+R.raw.dice_2);
                 break;
@@ -93,32 +115,77 @@ public class VideoActivity extends AppCompatActivity {
                 break;
             case 6:
                 uri = Uri.parse("android.resource://"+getPackageName()+"/"+R.raw.dice_6);
-                //playConfetti();
                 break;
             default:
                 uri = Uri.parse("android.resource://"+getPackageName()+"/"+R.raw.dice_1);
                 break;
         }
 
-        /*
-        DisplayMetrics metrics = new DisplayMetrics();
-        getWindowManager().getDefaultDisplay().getMetrics(metrics);
-        android.widget.RelativeLayout.LayoutParams params = (android.widget.RelativeLayout.LayoutParams) videoView.getLayoutParams();
-        params.width = metrics.widthPixels;
-        params.height = metrics.heightPixels;
-        params.leftMargin = 0;
-        videoView.setLayoutParams(params);
-        */
-        uri = Uri.parse("android.resource://"+getPackageName()+"/"+R.raw.dice_6);
+        updateScore(dot+"");
+    }
+
+    public void updateScore(String point) {
         videoView.setVideoURI(uri);
         videoView.start();
 
         new Handler().postDelayed(new Runnable() {
             @Override
             public void run() {
-                Toast.makeText(VideoActivity.this, "Tap or shake to refresh the dice.", Toast.LENGTH_SHORT).show();
+                if(scoreList.size()>0){
+                    scoreWrapper.setVisibility(View.VISIBLE);
+                    lastScoreTV.setText(scoreList.get(scoreList.size()-1));
+
+                    if(scoreList.get(scoreList.size()-1).equals("6")){
+                        lastScoreTV.setTextColor(getResources().getColor(R.color.light_blue));
+                    } else {
+                        lastScoreTV.setTextColor(getResources().getColor(R.color.yellow));
+                    }
+                }
+                scoreList.add(point);
+                Utils.saveDiceCount(getApplicationContext(), scoreList.size()+"");
+                updateDiceCountHistory();
+
+                if(scoreList.size()==1){
+                    showCustomToast("Tap to shake the dice.");
+                }
             }
         }, 4000);
+    }
+
+    public void showCustomToast(String message){
+        LayoutInflater inflater = getLayoutInflater();
+        View layout = inflater.inflate(R.layout.custom_toast,(ViewGroup) findViewById(R.id.toast_layout_root));
+
+        ImageView image = (ImageView) layout.findViewById(R.id.image);
+        image.setImageResource(R.mipmap.ic_launcher);
+        image.setVisibility(View.GONE);
+        TextView text1 = (TextView) layout.findViewById(R.id.text1);
+        text1.setText(message);
+        Toast firstToast = new Toast(getApplicationContext());
+        //firstToast.setGravity(Gravity.CENTER_VERTICAL, 0, 0);
+        firstToast.setGravity(Gravity.BOTTOM|Gravity.CENTER_HORIZONTAL, 0, 0);
+        firstToast.setDuration(Toast.LENGTH_LONG);
+        firstToast.setView(layout);
+        firstToast.show();
+
+        /*
+        Toast secondToast = Toast.makeText(this, message, Toast.LENGTH_SHORT);
+        // getView() method returns the default view of the initialized Toast.
+        View toastView = secondToast.getView();
+
+        // TextView can be accessed from default View of the Toast.
+        TextView toastMessage = (TextView) toastView.findViewById(android.R.id.message);
+        toastMessage.setTextSize(25);
+        toastMessage.setTextColor(getResources().getColor(R.color.yellow));
+
+        // With setCompoundDrawablesWithIntrinsicBounds() method drawable image can be aligned under the Toast View.
+        toastMessage.setCompoundDrawablesWithIntrinsicBounds(R.mipmap.ic_launcher,0,0,0);
+        toastMessage.setGravity(Gravity.CENTER_VERTICAL);
+        toastView.setBackgroundColor(getResources().getColor(R.color.organge));
+        //toastView.setBackgroundResource(R.drawable.bg_with_circular_border);
+        toastView.setMinimumWidth(650);
+        secondToast.show();
+        */
     }
 
     private void takeScreenshot() {
