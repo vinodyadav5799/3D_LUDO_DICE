@@ -4,7 +4,6 @@
     xmlns:tools="http://schemas.android.com/tools"
     android:layout_width="match_parent"
     android:layout_height="match_parent"
-    android:background="@color/black"
     tools:context=".SplashActivity">
 
     <RelativeLayout
@@ -16,41 +15,12 @@
         android:background="@color/black">
 
         <LinearLayout
-            android:id="@+id/countWrapper"
-            android:layout_width="match_parent"
-            android:layout_height="wrap_content"
-            android:orientation="horizontal"
-            android:paddingBottom="30dp"
-            android:layout_centerVertical="true"
-            android:layout_alignParentTop="true"
-            android:gravity="center">
-            <TextView
-                android:layout_width="wrap_content"
-                android:layout_height="wrap_content"
-                android:text="Dice rotation history - "
-                android:textSize="20dp"
-                android:gravity="center"
-                android:textColor="@color/yellow"/>
-
-            <TextView
-                android:id="@+id/countTV"
-                android:layout_width="wrap_content"
-                android:layout_height="wrap_content"
-                android:text=""
-                android:textSize="25dp"
-                android:gravity="center"
-                android:textStyle="bold"
-                android:textColor="@color/organge"/>
-        </LinearLayout>
-
-        <LinearLayout
             android:id="@+id/scoreWrapper"
             android:layout_width="match_parent"
             android:layout_height="wrap_content"
             android:orientation="horizontal"
             android:padding="5dp"
-            android:layout_centerVertical="true"
-            android:layout_below="@+id/countWrapper"
+            android:layout_alignParentTop="true"
             android:background="@drawable/score_board_bg"
             android:gravity="center">
             <TextView
@@ -65,7 +35,7 @@
                 android:id="@+id/lastScoreTV"
                 android:layout_width="wrap_content"
                 android:layout_height="wrap_content"
-                android:text=""
+                android:text="0"
                 android:textSize="30dp"
                 android:gravity="center"
                 android:textStyle="bold"
@@ -74,11 +44,12 @@
 
         <LinearLayout
             android:id="@+id/topWrapper"
-            android:layout_width="wrap_content"
+            android:layout_width="match_parent"
             android:layout_height="wrap_content"
             android:layout_below="@+id/scoreWrapper"
             android:paddingTop="30dp"
             android:paddingBottom="20dp"
+            android:gravity="center"
             android:orientation="horizontal">
             <ImageButton
                 android:id="@+id/closeIV"
@@ -111,16 +82,24 @@
         </LinearLayout>
 
         <FrameLayout
-            android:layout_width="wrap_content"
-            android:layout_height="wrap_content"
-            android:layout_below="@+id/topWrapper">
-
+            android:layout_width="match_parent"
+            android:layout_height="match_parent"
+            android:layout_below="@+id/topWrapper"
+            android:padding="20dp"
+            android:layout_above="@+id/diceHistoryRV">
             <VideoView
                 android:id="@+id/dice_vv"
                 android:layout_width="wrap_content"
-                android:layout_height="wrap_content"/>
-
+                android:layout_height="wrap_content"
+                android:layout_gravity="center"/>
         </FrameLayout>
+
+        <androidx.recyclerview.widget.RecyclerView
+            android:id="@+id/diceHistoryRV"
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:background="@color/white"
+            android:layout_alignParentBottom="true"/>
 
     </RelativeLayout>
 </FrameLayout>

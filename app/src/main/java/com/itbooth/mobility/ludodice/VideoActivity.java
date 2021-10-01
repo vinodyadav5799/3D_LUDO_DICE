@@ -2,12 +2,10 @@ package com.itbooth.mobility.ludodice;
 
 import android.content.Intent;
 import android.graphics.Bitmap;
-import android.graphics.Color;
 import android.net.Uri;
 import android.os.Bundle;
 import android.os.Environment;
 import android.os.Handler;
-import android.util.DisplayMetrics;
 import android.view.Gravity;
 import android.view.LayoutInflater;
 import android.view.View;
@@ -22,6 +20,10 @@ import android.widget.VideoView;
 
 import androidx.appcompat.app.AppCompatActivity;
 import androidx.core.content.FileProvider;
+import androidx.recyclerview.widget.LinearLayoutManager;
+import androidx.recyclerview.widget.RecyclerView;
+
+import com.itbooth.mobility.ludodice.adapter.DiceHistoryAdapter;
 
 import java.io.File;
 import java.io.FileOutputStream;
@@ -29,16 +31,14 @@ import java.text.SimpleDateFormat;
 import java.util.ArrayList;
 import java.util.Date;
 
-import nl.dionsegijn.konfetti.KonfettiView;
-import nl.dionsegijn.konfetti.models.Shape;
-import nl.dionsegijn.konfetti.models.Size;
-
 public class VideoActivity extends AppCompatActivity {
     VideoView videoView;
-    Uri uri;
-    ImageButton refreshIV, closeIV, shareIV;
-    TextView lastScoreTV, countTV;
+    ImageButton refreshIV, closeIV, shareIV, settingIV;
+    TextView lastScoreTV;
     LinearLayout scoreWrapper;
+    RecyclerView diceHistoryRV;
+
+    Uri uri;
     ArrayList<String> scoreList = new ArrayList<>();
 
     @Override
@@ -51,10 +51,16 @@ public class VideoActivity extends AppCompatActivity {
         refreshIV = (ImageButton)findViewById(R.id.refreshIV);
         shareIV = (ImageButton)findViewById(R.id.shareIV);
         closeIV = (ImageButton) findViewById(R.id.closeIV);
+        settingIV = (ImageButton) findViewById(R.id.settingIV);
         lastScoreTV = findViewById(R.id.lastScoreTV);
-        countTV = findViewById(R.id.countTV);
         scoreWrapper = findViewById(R.id.scoreWrapper);
         scoreWrapper.setVisibility(View.INVISIBLE);
+
+        LinearLayoutManager layoutManager
+                = new LinearLayoutManager(this, LinearLayoutManager.HORIZONTAL, false);
+
+        diceHistoryRV = (RecyclerView) findViewById(R.id.diceHistoryRV);
+        diceHistoryRV.setLayoutManager(layoutManager);
 
         refreshIV.setOnClickListener(new View.OnClickListener() {
             @Override
@@ -77,6 +83,14 @@ public class VideoActivity extends AppCompatActivity {
             }
         });
 
+        settingIV.setOnClickListener(new View.OnClickListener() {
+            @Override
+            public void onClick(View v) {
+                Intent i = new Intent(VideoActivity.this, SettingsActivity.class);
+                startActivity(i);
+            }
+        });
+
         shareIV.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View v) {
@@ -84,18 +98,25 @@ public class VideoActivity extends AppCompatActivity {
             }
         });
 
+
+
+    }
+
+    public void initializeView() {
         videoView.setVideoURI(Uri.parse("android.resource://"+getPackageName()+"/"+R.raw.dice_1));
         videoView.seekTo( 1 ); // thumbnail
-        updateDiceCountHistory();
+    }
+
+    @Override
+    protected void onResume() {
+        super.onResume();
+        initializeView();
     }
 
     public void updateDiceCountHistory() {
         String count = Utils.getDiceCount(this);
-        if(count.equals("")){
-            countTV.setText("0");
-        } else {
-            countTV.setText(count);
-        }
+        diceHistoryRV.setAdapter(new DiceHistoryAdapter(this, scoreList));
+        diceHistoryRV.scrollToPosition(scoreList.size()-1);
     }
 
     public void refreshDice() {
@@ -149,7 +170,7 @@ public class VideoActivity extends AppCompatActivity {
                     showCustomToast("Tap to shake the dice.");
                 }
             }
-        }, 4000);
+        }, 3000);
     }
 
     public void showCustomToast(String message){
