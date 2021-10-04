@@ -1,11 +1,15 @@
 package com.itbooth.mobility.ludodice;
 
+import android.content.Context;
 import android.content.Intent;
 import android.graphics.Bitmap;
 import android.net.Uri;
+import android.os.Build;
 import android.os.Bundle;
 import android.os.Environment;
 import android.os.Handler;
+import android.os.VibrationEffect;
+import android.os.Vibrator;
 import android.view.Gravity;
 import android.view.LayoutInflater;
 import android.view.View;
@@ -32,12 +36,15 @@ import java.util.ArrayList;
 import java.util.Date;
 
 public class VideoActivity extends AppCompatActivity {
-    VideoView videoView;
-    ImageButton refreshIV, closeIV, shareIV, settingIV;
+    //VideoView videoView;
+    Player videoView;
+    ImageButton refreshIV, closeIV, shareIV, settingIV, musicSettingIV, vibrationSettingIV;
     TextView lastScoreTV;
     LinearLayout scoreWrapper;
     RecyclerView diceHistoryRV;
-
+    Vibrator vibrator;
+    int delay = 3000;
+    int miniDelay = 500;
     Uri uri;
     ArrayList<String> scoreList = new ArrayList<>();
 
@@ -46,15 +53,21 @@ public class VideoActivity extends AppCompatActivity {
         super.onCreate(savedInstanceState);
         setContentView(R.layout.activity_video);
 
+        vibrator = (Vibrator) getSystemService(Context.VIBRATOR_SERVICE);
         getWindow().addFlags(WindowManager.LayoutParams.FLAG_FULLSCREEN);
-        videoView = (VideoView)findViewById(R.id.dice_vv);
+        //videoView = (VideoView)findViewById(R.id.dice_vv);
+        videoView = findViewById(R.id.dice_vv);
         refreshIV = (ImageButton)findViewById(R.id.refreshIV);
         shareIV = (ImageButton)findViewById(R.id.shareIV);
+        shareIV.setVisibility(View.GONE);
         closeIV = (ImageButton) findViewById(R.id.closeIV);
         settingIV = (ImageButton) findViewById(R.id.settingIV);
+        settingIV.setVisibility(View.GONE);
         lastScoreTV = findViewById(R.id.lastScoreTV);
         scoreWrapper = findViewById(R.id.scoreWrapper);
         scoreWrapper.setVisibility(View.INVISIBLE);
+        musicSettingIV = findViewById(R.id.musicSettingIV);
+        vibrationSettingIV = findViewById(R.id.vibrationSettingIV);
 
         LinearLayoutManager layoutManager
                 = new LinearLayoutManager(this, LinearLayoutManager.HORIZONTAL, false);
@@ -65,14 +78,14 @@ public class VideoActivity extends AppCompatActivity {
         refreshIV.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View v) {
-                refreshDice();
+                refreshDice(v);
             }
         });
 
         videoView.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View v) {
-                refreshDice();
+                refreshDice(v);
             }
         });
 
@@ -80,6 +93,42 @@ public class VideoActivity extends AppCompatActivity {
             @Override
             public void onClick(View v) {
                 finish();
+            }
+        });
+
+        musicSettingIV.setOnClickListener(new View.OnClickListener() {
+            @Override
+            public void onClick(View v) {
+                boolean isEnabled = Utils.getMusicSetting(VideoActivity.this);
+                if(isEnabled){
+                    Utils.saveMusicSetting(VideoActivity.this, false);
+                    musicSettingIV.setBackgroundResource(R.drawable.ic_music_off);
+                    //videoView.mute();
+                } else {
+                    Utils.saveMusicSetting(VideoActivity.this, true);
+                    musicSettingIV.setBackgroundResource(R.drawable.ic_music_on);
+                    //videoView.unmute();
+                }
+            }
+        });
+
+        vibrationSettingIV.setOnClickListener(new View.OnClickListener() {
+            @Override
+            public void onClick(View v) {
+                boolean isEnabled = Utils.getVibrationSetting(VideoActivity.this);
+                if(isEnabled){
+                    Utils.saveVibrationSetting(VideoActivity.this, false);
+                    vibrationSettingIV.setBackgroundResource(R.drawable.ic_vibration_off);
+                    stopVibrate(v);
+                } else {
+                    Utils.saveVibrationSetting(VideoActivity.this, true);
+                    vibrationSettingIV.setBackgroundResource(R.drawable.ic_vibration_on);
+                    if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.O) {
+                        vibrator.vibrate(VibrationEffect.createOneShot(miniDelay, VibrationEffect.DEFAULT_AMPLITUDE));
+                    } else {
+                        vibrator.vibrate(miniDelay);
+                    }
+                }
             }
         });
 
@@ -98,12 +147,31 @@ public class VideoActivity extends AppCompatActivity {
             }
         });
 
+    }
 
+    public void startVibrate(View v) {
+        boolean isEnabled = Utils.getVibrationSetting(VideoActivity.this);
+        if(isEnabled){
+            //long pattern[] = { 0, 100, 200, 300, 400 };
+            //vibrator = (Vibrator) getSystemService(Context.VIBRATOR_SERVICE);
+            //vibrator.vibrate(pattern, 0);
 
+            // Vibrate for 500 milliseconds
+            if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.O) {
+                vibrator.vibrate(VibrationEffect.createOneShot(delay, VibrationEffect.DEFAULT_AMPLITUDE));
+            } else {
+                //deprecated in API 26
+                vibrator.vibrate(delay);
+            }
+        }
+    }
+
+    public void stopVibrate(View v) {
+        vibrator.cancel();
     }
 
     public void initializeView() {
-        videoView.setVideoURI(Uri.parse("android.resource://"+getPackageName()+"/"+R.raw.dice_1));
+        videoView.setVideoURI(Uri.parse("android.resource://"+getPackageName()+"/"+R.raw.role_1));
         videoView.seekTo( 1 ); // thumbnail
     }
 
@@ -119,35 +187,36 @@ public class VideoActivity extends AppCompatActivity {
         diceHistoryRV.scrollToPosition(scoreList.size()-1);
     }
 
-    public void refreshDice() {
+    public void refreshDice(View v) {
         int dot = Utils.generateRandomNumber();
         switch (dot){
             case 2:
-                uri = Uri.parse("android.resource://"+getPackageName()+"/"+R.raw.dice_2);
+                uri = Uri.parse("android.resource://"+getPackageName()+"/"+R.raw.role_2);
                 break;
             case 3:
-                uri = Uri.parse("android.resource://"+getPackageName()+"/"+R.raw.dice_3);
+                uri = Uri.parse("android.resource://"+getPackageName()+"/"+R.raw.role_3);
                 break;
             case 4:
-                uri = Uri.parse("android.resource://"+getPackageName()+"/"+R.raw.dice_4);
+                uri = Uri.parse("android.resource://"+getPackageName()+"/"+R.raw.role_4);
                 break;
             case 5:
-                uri = Uri.parse("android.resource://"+getPackageName()+"/"+R.raw.dice_5);
+                uri = Uri.parse("android.resource://"+getPackageName()+"/"+R.raw.role_5);
                 break;
             case 6:
-                uri = Uri.parse("android.resource://"+getPackageName()+"/"+R.raw.dice_6);
+                uri = Uri.parse("android.resource://"+getPackageName()+"/"+R.raw.role_6);
                 break;
             default:
-                uri = Uri.parse("android.resource://"+getPackageName()+"/"+R.raw.dice_1);
+                uri = Uri.parse("android.resource://"+getPackageName()+"/"+R.raw.role_1);
                 break;
         }
 
-        updateScore(dot+"");
+        updateScore(dot+"",v);
     }
 
-    public void updateScore(String point) {
+    public void updateScore(String point, View v) {
         videoView.setVideoURI(uri);
         videoView.start();
+        startVibrate(v);
 
         new Handler().postDelayed(new Runnable() {
             @Override
@@ -169,8 +238,9 @@ public class VideoActivity extends AppCompatActivity {
                 if(scoreList.size()==1){
                     showCustomToast("Tap to shake the dice.");
                 }
+                stopVibrate(v);
             }
-        }, 3000);
+        }, delay);
     }
 
     public void showCustomToast(String message){

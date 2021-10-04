@@ -1,15 +1,7 @@
 package com.itbooth.mobility.ludodice;
 
 import android.content.Context;
-import android.content.Intent;
 import android.content.SharedPreferences;
-import android.view.Gravity;
-import android.view.LayoutInflater;
-import android.view.View;
-import android.view.ViewGroup;
-import android.widget.ImageView;
-import android.widget.TextView;
-import android.widget.Toast;
 
 import java.util.Random;
 
@@ -18,6 +10,9 @@ import static android.content.Context.MODE_PRIVATE;
 public class Utils {
 
     public static String countKey = "COUNT_KEY";
+    public static String musicSettingKey = "MUSIC_SETTING_KEY";
+    public static String vibrationSettingKey = "VIBRATION_SETTING_KEY";
+
     public static int generateRandomNumber() {
         Random rand = new Random();
         //int randomNum = rand.nextInt((max - min) + min) + min;
@@ -36,4 +31,25 @@ public class Utils {
         return prefs.getString(countKey, "");//"No name defined" is the default value.
     }
 
+    public static void saveMusicSetting(Context context, boolean isEnabled) {
+        SharedPreferences.Editor editor = context.getSharedPreferences(context.getApplicationContext().getPackageName(), MODE_PRIVATE).edit();
+        editor.putBoolean(musicSettingKey, isEnabled);
+        editor.apply();
+    }
+
+    public static boolean getMusicSetting(Context context) {
+        SharedPreferences prefs = context.getSharedPreferences(context.getApplicationContext().getPackageName(), MODE_PRIVATE);
+        return prefs.getBoolean(musicSettingKey, true);//"No name defined" is the default value.
+    }
+
+    public static void saveVibrationSetting(Context context, boolean isEnabled) {
+        SharedPreferences.Editor editor = context.getSharedPreferences(context.getApplicationContext().getPackageName(), MODE_PRIVATE).edit();
+        editor.putBoolean(vibrationSettingKey, isEnabled);
+        editor.apply();
+    }
+
+    public static boolean getVibrationSetting(Context context) {
+        SharedPreferences prefs = context.getSharedPreferences(context.getApplicationContext().getPackageName(), MODE_PRIVATE);
+        return prefs.getBoolean(vibrationSettingKey, true);//"No name defined" is the default value.
+    }
 }
