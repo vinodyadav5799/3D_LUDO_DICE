@@ -3,6 +3,7 @@ package com.itbooth.mobility.ludodice;
 import android.content.Context;
 import android.content.Intent;
 import android.graphics.Bitmap;
+import android.media.MediaPlayer;
 import android.net.Uri;
 import android.os.Build;
 import android.os.Bundle;
@@ -10,6 +11,7 @@ import android.os.Environment;
 import android.os.Handler;
 import android.os.VibrationEffect;
 import android.os.Vibrator;
+import android.util.Log;
 import android.view.Gravity;
 import android.view.LayoutInflater;
 import android.view.View;
@@ -18,6 +20,7 @@ import android.view.WindowManager;
 import android.widget.ImageButton;
 import android.widget.ImageView;
 import android.widget.LinearLayout;
+import android.widget.MediaController;
 import android.widget.TextView;
 import android.widget.Toast;
 import android.widget.VideoView;
@@ -36,8 +39,8 @@ import java.util.ArrayList;
 import java.util.Date;
 
 public class VideoActivity extends AppCompatActivity {
-    //VideoView videoView;
-    Player videoView;
+    VideoView videoView;
+    //Player videoView;
     ImageButton refreshIV, closeIV, shareIV, settingIV, musicSettingIV, vibrationSettingIV;
     TextView lastScoreTV;
     LinearLayout scoreWrapper;
@@ -47,6 +50,7 @@ public class VideoActivity extends AppCompatActivity {
     int miniDelay = 500;
     Uri uri;
     ArrayList<String> scoreList = new ArrayList<>();
+    MediaPlayer.OnPreparedListener PreparedListener;
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
@@ -55,8 +59,31 @@ public class VideoActivity extends AppCompatActivity {
 
         vibrator = (Vibrator) getSystemService(Context.VIBRATOR_SERVICE);
         getWindow().addFlags(WindowManager.LayoutParams.FLAG_FULLSCREEN);
-        //videoView = (VideoView)findViewById(R.id.dice_vv);
-        videoView = findViewById(R.id.dice_vv);
+
+        videoView = (VideoView)findViewById(R.id.dice_vv);
+        MediaController mc = new MediaController(this);
+        //mc.setAnchorView(videoView);
+        mc.setMediaPlayer(videoView);
+        //videoView.setMediaController(mc);
+        videoView.setOnPreparedListener(new MediaPlayer.OnPreparedListener() {
+
+            @Override
+            public void onPrepared(MediaPlayer mp) {
+                try {
+                    boolean isEnabled = Utils.getMusicSetting(VideoActivity.this);
+                    if(isEnabled){
+                       unMute(mp);
+                    } else {
+                        mute(mp);
+                    }
+                } catch (Exception ex) {
+                    Log.e("error", ex.getMessage());
+                }
+            }
+        });
+        videoView.requestFocus();
+
+        //videoView = findViewById(R.id.dice_vv);
         refreshIV = (ImageButton)findViewById(R.id.refreshIV);
         shareIV = (ImageButton)findViewById(R.id.shareIV);
         shareIV.setVisibility(View.GONE);
@@ -99,15 +126,17 @@ public class VideoActivity extends AppCompatActivity {
         musicSettingIV.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View v) {
-                boolean isEnabled = Utils.getMusicSetting(VideoActivity.this);
-                if(isEnabled){
-                    Utils.saveMusicSetting(VideoActivity.this, false);
-                    musicSettingIV.setBackgroundResource(R.drawable.ic_music_off);
-                    //videoView.mute();
-                } else {
-                    Utils.saveMusicSetting(VideoActivity.this, true);
-                    musicSettingIV.setBackgroundResource(R.drawable.ic_music_on);
-                    //videoView.unmute();
+                try {
+                    boolean isEnabled = Utils.getMusicSetting(VideoActivity.this);
+                    if(isEnabled){
+                        Utils.saveMusicSetting(VideoActivity.this, false);
+                        musicSettingIV.setBackgroundResource(R.drawable.ic_music_off);
+                    } else {
+                        Utils.saveMusicSetting(VideoActivity.this, true);
+                        musicSettingIV.setBackgroundResource(R.drawable.ic_music_on);
+                    }
+                } catch (Exception ex) {
+                    Log.e("error", ex.getMessage());
                 }
             }
         });
@@ -147,13 +176,44 @@ public class VideoActivity extends AppCompatActivity {
             }
         });
 
+        // Vibrator Icon
+        boolean isEnabled = Utils.getVibrationSetting(VideoActivity.this);
+        if(isEnabled){
+            vibrationSettingIV.setBackgroundResource(R.drawable.ic_vibration_on);
+        } else {
+            vibrationSettingIV.setBackgroundResource(R.drawable.ic_vibration_off);
+        }
+
+        // Music Icon
+        boolean isMusicEnabled = Utils.getMusicSetting(VideoActivity.this);
+        if(isMusicEnabled){
+            musicSettingIV.setBackgroundResource(R.drawable.ic_music_on);
+        } else {
+            musicSettingIV.setBackgroundResource(R.drawable.ic_music_off);
+        }
+
+        videoView.setVideoURI(Uri.parse("android.resource://"+getPackageName()+"/"+R.raw.role_1));
+    }
+
+    public void mute(MediaPlayer mediaPlayer) {
+        this.setVolume(mediaPlayer, 0);
+    }
+
+    public void unMute(MediaPlayer mediaPlayer) {
+        this.setVolume(mediaPlayer, 100);
+    }
+
+    private void setVolume(MediaPlayer mediaPlayer,int amount) {
+        final int max = 100;
+        final double numerator = max - amount > 0 ? Math.log(max - amount) : 0;
+        final float volume = (float) (1 - (numerator / Math.log(max)));
+        mediaPlayer.setVolume(volume, volume);
     }
 
     public void startVibrate(View v) {
         boolean isEnabled = Utils.getVibrationSetting(VideoActivity.this);
         if(isEnabled){
             //long pattern[] = { 0, 100, 200, 300, 400 };
-            //vibrator = (Vibrator) getSystemService(Context.VIBRATOR_SERVICE);
             //vibrator.vibrate(pattern, 0);
 
             // Vibrate for 500 milliseconds
@@ -171,7 +231,6 @@ public class VideoActivity extends AppCompatActivity {
     }
 
     public void initializeView() {
-        videoView.setVideoURI(Uri.parse("android.resource://"+getPackageName()+"/"+R.raw.role_1));
         videoView.seekTo( 1 ); // thumbnail
     }
 

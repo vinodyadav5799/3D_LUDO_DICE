@@ -22,20 +22,16 @@ public class Player extends VideoView implements MediaPlayer.OnPreparedListener,
     }
 
     @Override
-    public boolean onError(MediaPlayer mediaPlayer, int what, int extra) {
-       return false;
-    }
+    public boolean onError(MediaPlayer mediaPlayer, int what, int extra) { return false; }
 
     @Override
-    public void onCompletion(MediaPlayer mediaPlayer) {
-
-    }
+    public void onCompletion(MediaPlayer mediaPlayer) {  }
 
     public void mute() {
         this.setVolume(0);
     }
 
-    public void unmute() {
+    public void unMute() {
         this.setVolume(100);
     }
 
